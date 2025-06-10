@@ -1,4 +1,4 @@
-#Region-guided generative adversarial network (RG-GAN) for lesion detection in PET images
+Region-guided generative adversarial network (RG-GAN) for lesion detection in PET images
 
 This code is used to detect neuroendocrine tumors/lesions on positron emission tomorgraphy (PET) images with a region-guided GAN model. The code is implemented with PyTorch (version 1.10.1, https://pytorch.org/) on a Ubuntu Linux machine.
 
