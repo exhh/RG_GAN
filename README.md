@@ -6,7 +6,7 @@ Usage (please refer to the paper below for the details of data format):
 
 For training: ./train.sh
 
-For testing: ./eval.sh
+For testing: ./eval_syn_real.sh
 
 
 <br>
