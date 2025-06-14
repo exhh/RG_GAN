@@ -18,10 +18,6 @@ from util.visualizer import save_images
 from torchvision import transforms
 from PIL import Image
 
-from tools.analysis_util import get_seed_name, get_labelmap_name, printCoords_seg_slc, removeSmallRegions, pixel_threshold_filter
-from tools.util import sigmoid
-from tools.evaluation import eval_folder_seg
-
 import scipy.io as sio
 import copy
 import pdb
