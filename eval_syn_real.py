@@ -121,21 +121,20 @@ if __name__ == '__main__':
             VotingMap_filter = cv2.resize(VotingMap_filter, dsize=(128, 128), interpolation=cv2.INTER_CUBIC)
 
             for threshhold in threshold_pool:
-                for area_thd in area_pool:
-                    VotingMap_copy = copy.deepcopy(VotingMap_filter)
-                    VotingMap_copy[VotingMap_copy <= threshhold*max_pred_nomask] = 0
-                    VotingMap_copy[VotingMap_copy > threshhold*max_pred_nomask] = 1
-                    labelmapname = get_labelmap_name(threshhold, area_thd)
-                    labelnumname = get_labelmap_name(threshhold, area_thd) + '_number'
-                    labelmaptime = get_labelmap_name(threshhold, area_thd) + '_time'
-                    thisStart = time.time()
-                    map_label, num_label = measure.label(VotingMap_copy.astype(int), return_num = True)
-                    thisEnd = time.time()
-                    if num_label == 0:
-                        print("No detection for img:{s} for parameter t_{thd:3.2f} and a_{area:02d}".format(s=im_name[0], thd=threshhold, area=area_thd))
+                VotingMap_copy = copy.deepcopy(VotingMap_filter)
+                VotingMap_copy[VotingMap_copy <= threshhold*max_pred_nomask] = 0
+                VotingMap_copy[VotingMap_copy > threshhold*max_pred_nomask] = 1
+                labelmapname = get_labelmap_name(threshhold)
+                labelnumname = get_labelmap_name(threshhold) + '_number'
+                labelmaptime = get_labelmap_name(threshhold) + '_time'
+                thisStart = time.time()
+                map_label, num_label = measure.label(VotingMap_copy.astype(int), return_num = True)
+                thisEnd = time.time()
+                if num_label == 0:
+                    print("No detection for img:{s} for parameter t_{thd:3.2f}".format(s=im_name[0], thd=threshhold))
 
-                    resultsDict[labelmapname] = map_label
-                    resultsDict[labelnumname] = num_label
-                    resultsDict[labelmaptime] = thisEnd - thisStart +  resultsDict[voting_time_name]
+                resultsDict[labelmapname] = map_label
+                resultsDict[labelnumname] = num_label
+                resultsDict[labelmaptime] = thisEnd - thisStart +  resultsDict[voting_time_name]
 
             sio.savemat(resultDictPath_mat, resultsDict)
