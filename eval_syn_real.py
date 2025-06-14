@@ -169,8 +169,6 @@ if __name__ == '__main__':
                         thisEnd = time.time()
                         if num_label == 0:
                             print("No detection for img:{s} for parameter t_{thd:3.2f} and a_{area:02d}".format(s=im_name[0], thd=threshhold, area=area_thd))
-                        else:
-                            map_label, num_label = removeSmallRegions(map_label, area_thd)
 
                         resultsDict[labelmapname] = map_label
                         resultsDict[labelnumname] = num_label
