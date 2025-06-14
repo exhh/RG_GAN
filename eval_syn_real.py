@@ -109,69 +109,33 @@ if __name__ == '__main__':
                 resultsDict[mask_name] = np.copy(cur_mask)
 
             print(f'localmax_len = {local_min_len}, avgfilter_size = {avg_filter_size}, filtering = {filtering}.')
-            if mask is not None:
-                if filtering: # using box filtering
-                    VotingMap_filter = copy.deepcopy(cur_Votingmap)
-                    VotingMap_filter[VotingMap_filter < 0] = 0.0
-                    VotingMap_filter = uniform_filter(VotingMap_filter, size=avg_filter_size)
-                    VotingMap_filter = np.multiply(VotingMap_filter, cur_mask)
-                    VotingMap_filter_orig = copy.deepcopy(cur_Votingmap)
-                    VotingMap_filter_orig[VotingMap_filter_orig < 0] = 0.0
-                    VotingMap_filter_orig = uniform_filter(VotingMap_filter_orig, size=avg_filter_size)
-                else:
-                    VotingMap_filter = np.multiply(copy.deepcopy(cur_Votingmap), cur_mask)
-                    VotingMap_filter[VotingMap_filter < 0] = 0.0
-                    VotingMap_filter_orig = copy.deepcopy(cur_Votingmap)
-                    VotingMap_filter_orig[VotingMap_filter_orig < 0] = 0.0
 
-                VotingMap_filter = cv2.resize(VotingMap_filter, dsize=(128, 128), interpolation=cv2.INTER_CUBIC)
-                VotingMap_filter = np.multiply(VotingMap_filter, mask_ori)
+            if filtering: # using box filtering
+                VotingMap_filter = copy.deepcopy(cur_Votingmap)
+                VotingMap_filter[VotingMap_filter < 0] = 0.0
+                VotingMap_filter = uniform_filter(VotingMap_filter, size=avg_filter_size)
+            else:
+                VotingMap_filter = copy.deepcopy(cur_Votingmap)
+                VotingMap_filter[VotingMap_filter < 0] = 0.0
 
-                for threshhold in threshold_pool:
-                    for area_thd in area_pool:
-                        VotingMap_copy = copy.deepcopy(VotingMap_filter)
-                        VotingMap_copy[VotingMap_copy <= threshhold*max_pred] = 0
-                        VotingMap_copy[VotingMap_copy > threshhold*max_pred] = 1
-                        labelmapname = get_labelmap_name(threshhold, area_thd)
-                        labelnumname = get_labelmap_name(threshhold, area_thd) + '_number'
-                        labelmaptime = get_labelmap_name(threshhold, area_thd) + '_time'
-                        thisStart = time.time()
-                        map_label, num_label = measure.label(VotingMap_copy.astype(int), return_num = True)
-                        thisEnd = time.time()
-                        if num_label == 0:
-                            print("No detection for img:{s} for parameter t_{thd:3.2f} and a_{area:02d}".format(s=im_name[0], thd=threshhold, area=area_thd))
-                        else:
-                            map_label, num_label = removeSmallRegions(map_label, area_thd)
-                        resultsDict[labelmapname] = map_label
-                        resultsDict[labelnumname] = num_label
-                        resultsDict[labelmaptime] = thisEnd - thisStart +  resultsDict[voting_time_name]
-            else: # no mask
-                if filtering: # using box filtering
-                    VotingMap_filter = copy.deepcopy(cur_Votingmap)
-                    VotingMap_filter[VotingMap_filter < 0] = 0.0
-                    VotingMap_filter = uniform_filter(VotingMap_filter, size=avg_filter_size)
-                else:
-                    VotingMap_filter = copy.deepcopy(cur_Votingmap)
-                    VotingMap_filter[VotingMap_filter < 0] = 0.0
+            VotingMap_filter = cv2.resize(VotingMap_filter, dsize=(128, 128), interpolation=cv2.INTER_CUBIC)
 
-                VotingMap_filter = cv2.resize(VotingMap_filter, dsize=(128, 128), interpolation=cv2.INTER_CUBIC)
+            for threshhold in threshold_pool:
+                for area_thd in area_pool:
+                    VotingMap_copy = copy.deepcopy(VotingMap_filter)
+                    VotingMap_copy[VotingMap_copy <= threshhold*max_pred_nomask] = 0
+                    VotingMap_copy[VotingMap_copy > threshhold*max_pred_nomask] = 1
+                    labelmapname = get_labelmap_name(threshhold, area_thd)
+                    labelnumname = get_labelmap_name(threshhold, area_thd) + '_number'
+                    labelmaptime = get_labelmap_name(threshhold, area_thd) + '_time'
+                    thisStart = time.time()
+                    map_label, num_label = measure.label(VotingMap_copy.astype(int), return_num = True)
+                    thisEnd = time.time()
+                    if num_label == 0:
+                        print("No detection for img:{s} for parameter t_{thd:3.2f} and a_{area:02d}".format(s=im_name[0], thd=threshhold, area=area_thd))
 
-                for threshhold in threshold_pool:
-                    for area_thd in area_pool:
-                        VotingMap_copy = copy.deepcopy(VotingMap_filter)
-                        VotingMap_copy[VotingMap_copy <= threshhold*max_pred_nomask] = 0
-                        VotingMap_copy[VotingMap_copy > threshhold*max_pred_nomask] = 1
-                        labelmapname = get_labelmap_name(threshhold, area_thd)
-                        labelnumname = get_labelmap_name(threshhold, area_thd) + '_number'
-                        labelmaptime = get_labelmap_name(threshhold, area_thd) + '_time'
-                        thisStart = time.time()
-                        map_label, num_label = measure.label(VotingMap_copy.astype(int), return_num = True)
-                        thisEnd = time.time()
-                        if num_label == 0:
-                            print("No detection for img:{s} for parameter t_{thd:3.2f} and a_{area:02d}".format(s=im_name[0], thd=threshhold, area=area_thd))
-
-                        resultsDict[labelmapname] = map_label
-                        resultsDict[labelnumname] = num_label
-                        resultsDict[labelmaptime] = thisEnd - thisStart +  resultsDict[voting_time_name]
+                    resultsDict[labelmapname] = map_label
+                    resultsDict[labelnumname] = num_label
+                    resultsDict[labelmaptime] = thisEnd - thisStart +  resultsDict[voting_time_name]
 
             sio.savemat(resultDictPath_mat, resultsDict)
